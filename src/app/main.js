@@ -1,1 +1,1 @@
-import { game } from './systems/game';
+import { game } from "./systems/game";

@@ -64,4 +64,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## References
 
-* This project is based on [https://github.com/sz-piotr/js13k-webpack-starter](https://github.com/sz-piotr/js13k-webpack-starter) by Piotr Szlachciak.
+- This project is based on [https://github.com/sz-piotr/js13k-webpack-starter](https://github.com/sz-piotr/js13k-webpack-starter) by Piotr Szlachciak.
