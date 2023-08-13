@@ -1,4 +1,4 @@
-import { Room } from "../entities/Room";
+import { Room } from "../entities/room";
 
 AFRAME.registerSystem("game", {
   schema: {},

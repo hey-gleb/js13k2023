@@ -1,13 +1,19 @@
-import { Torch } from "./Torch";
+import { Torch } from "./torch";
+import {Door} from "./door";
+import {Sword} from "./sword";
 
 export class Room {
   constructor(x, y, z, props) {
     this.el = document.createElement("a-entity");
 
     const torch1 = new Torch(0.5, 0.5, -2);
-    const torch2 = new Torch(0.5, 0.5, 2);
     this.el.appendChild(torch1.el);
-    this.el.appendChild(torch2.el);
+
+    const door = new Door(0, 0,0)
+    this.el.appendChild(door.el)
+
+    const sword = new Sword(0, 0,0)
+    this.el.appendChild(sword.el)
 
     this.el.setAttribute("id", "room");
     this.el.setAttribute("position", {
