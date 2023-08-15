@@ -3,46 +3,103 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://aframe.io/releases/0.9.2/aframe.min.js"></script>
-<!--    <script src="lib/aframe.min.js"></script>-->
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <!--    <script src="lib/aframe.min.js"></script>-->
   </head>
   <body>
-  <script>
-    // AFRAME.registerComponent('collider-check', {
-    //   dependencies: ['raycaster'],
-    //
-    //   init: function () {
-    //     this.el.addEventListener('raycaster-intersection', function (e) {
-    //       console.log('Player hit something!');
-    //       // console.log(e)
-    //     });
-    //   }
-    // });
-    AFRAME.registerComponent('raycaster-listen', {
-      init: function () {
-        // Use events to figure out what raycaster is listening so we don't have to
-        // hardcode the raycaster.
-        this.el.addEventListener('raycaster-intersected', evt => {
-          console.log('collide')
-          this.raycaster = evt.detail.el;
-        });
-        this.el.addEventListener('raycaster-intersected-cleared', evt => {
-          this.raycaster = null;
-        });
-      },
+    <script>
+      AFRAME.registerComponent("collider-check", {
+        dependencies: ["raycaster"],
 
-      tick: function () {
-        if (!this.raycaster) { return; }  // Not intersecting.
+        init: function () {
+          this.el.addEventListener("raycaster-intersection", function (e) {
+            console.log("Player hit something!");
+          });
+        },
+      });
+      AFRAME.registerComponent("raycaster-listen", {
+        dependencies: ["raycaster"],
+        init: function () {
+          this.el.addEventListener("raycaster-intersected", (evt) => {
+            console.log("collide");
+            this.raycaster = evt.detail.el;
+          });
+          this.el.addEventListener("raycaster-intersected-cleared", (evt) => {
+            this.raycaster = null;
+          });
+        },
 
-        let intersection = this.raycaster.components.raycaster.getIntersection(this.el);
-        if (!intersection) { return; }
-        console.log(intersection);
-      }
-    });
-  </script>
-    <a-scene>
-      <a-camera collider-check>
-        <a-cursor raycaster="showLine: true;objects: .collidable" raycaster-listen></a-cursor>
+        tick: function () {
+          if (!this.raycaster) {
+            return;
+          } // Not intersecting.
+
+          let intersection =
+            this.raycaster.components.raycaster.getIntersection(this.el);
+          if (!intersection) {
+            return;
+          }
+          // console.log(intersection);
+        },
+      });
+      AFRAME.registerComponent("cursor-listener", {
+        init: function () {
+          const carrySystem =
+            document.getElementById("scene").systems["carry-system"];
+          this.el.addEventListener("click", function (evt) {
+            carrySystem.pickup(evt.detail.intersection.object);
+            console.log("I was clicked at: ", evt.detail.intersection);
+          });
+        },
+      });
+      AFRAME.registerSystem("carry-system", {
+        init: function () {
+          this.item = null;
+        },
+        pickup: function (entity) {
+          this.item = entity;
+        },
+        drop: function () {
+          //TODO verify it's the same entity
+          const player = document.getElementById("player");
+          this.item.el.setAttribute("position", {
+            x: player.object3D.position.x,
+            y: -1.25,
+            z: player.object3D.position.z,
+          });
+          this.item = null;
+        },
+        tick: function () {
+          // TODO compare positions
+          // TODO check the position not every tick by 10 times per second
+          if (!!this.item) {
+            const player = document.getElementById("player");
+            const playerX = player.object3D.position.x;
+            const playerZ = player.object3D.position.z;
+            const newCenterX =
+              playerX + 0.25 * Math.cos(player.object3D.rotation.x);
+            const newCenterY =
+              playerZ + 0.25 * Math.sin(player.object3D.rotation.y);
+            this.item.el.setAttribute("rotation", {
+              y: THREE.MathUtils.radToDeg(player.object3D.rotation.y),
+              z: 90,
+            });
+            this.item.el.setAttribute("position", {
+              x: newCenterX - 0.25,
+              y: 0,
+              z: newCenterY - 0.25,
+            });
+          }
+        },
+      });
+    </script>
+    <a-scene id="scene">
+      <a-camera id="player" collider-check>
+        <a-cursor
+          raycaster="showLine: true;objects: .collidable"
+          raycaster-listen
+          cursor-listener
+        ></a-cursor>
       </a-camera>
     </a-scene>
   </body>

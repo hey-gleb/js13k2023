@@ -1,14 +1,17 @@
-export class Sword {
+import { GameObject } from "./gameObject";
+
+export class Sword extends GameObject {
   constructor(x, y, z, props) {
-    this.el = document.createElement("a-entity");
-    this.el.className = '.collidable'
+    super(x, y, z);
+    this.el.className = "collidable";
     this.el.setAttribute("position", {
-      z: -0.5
+      x: -2,
+      z: -0.5,
     });
     this.el.setAttribute("geometry", {
       primitive: "cylinder",
       height: 0.9,
-      radius: 0.02
-    })
+      radius: 0.02,
+    });
   }
 }
