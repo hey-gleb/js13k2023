@@ -61,11 +61,13 @@
         },
         drop: function () {
           //TODO verify it's the same entity
-          const player = document.getElementById("player");
+          const armoryTable = document.getElementById("armoryTable");
+          console.log(armoryTable.armorySlots);
+          const armorySlot = armoryTable.getNextAvailableSlot();
           this.item.el.setAttribute("position", {
-            x: player.object3D.position.x,
-            y: -1.25,
-            z: player.object3D.position.z,
+            x: armorySlot.object3D.position.x,
+            y: armorySlot.object3D.position.y + 0.5,
+            z: armorySlot.object3D.position.z,
           });
           this.item = null;
         },

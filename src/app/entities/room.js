@@ -3,6 +3,8 @@ import { Door } from "./door";
 import { Sword } from "./sword";
 import { Warrior } from "./warrior";
 import { GameObject } from "./gameObject";
+import { Shield } from "./shield";
+import { ArmoryTable } from "./armoryTable";
 
 export class Room extends GameObject {
   constructor(x, y, z, props) {
@@ -32,8 +34,14 @@ export class Room extends GameObject {
     const sword = new Sword(-2, 0, -0.5);
     this.el.appendChild(sword.el);
 
-    const warrior = new Warrior(0, 0, 0);
+    const shield = new Shield(2, 0, -0.5);
+    this.el.appendChild(shield.el);
+
+    const warrior = new Warrior(1.5, 0, 4);
     this.el.appendChild(warrior.el);
+
+    const armoryTable = new ArmoryTable(1.5, -1, 2.25);
+    this.el.appendChild(armoryTable.el);
 
     const trigger = document.createElement("a-entity");
     trigger.setAttribute("position", "1.5 0 1.25");

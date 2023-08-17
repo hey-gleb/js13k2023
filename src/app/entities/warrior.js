@@ -1,8 +1,9 @@
-export class Warrior {
+import { GameObject } from "./gameObject";
+
+export class Warrior extends GameObject {
   constructor(x, y, z, props) {
-    this.el = document.createElement("a-entity");
-    this.el.setAttribute("warrior");
-    this.el.setAttribute("position", "0 0 -2");
+    super(x, y, z);
+    this.el.setAttribute("id", "warrior");
     this.el.setAttribute("geometry", {
       primitive: "box",
     });
