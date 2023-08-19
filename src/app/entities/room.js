@@ -1,10 +1,10 @@
 import { Torch } from "./torch";
 import { Door } from "./door";
 import { Sword } from "./sword";
-import { Warrior } from "./warrior";
 import { GameObject } from "./gameObject";
 import { Shield } from "./shield";
 import { ArmoryTable } from "./armoryTable";
+import { GateSwitch } from "./gateSwitch";
 
 export class Room extends GameObject {
   constructor(x, y, z, props) {
@@ -34,11 +34,11 @@ export class Room extends GameObject {
     const sword = new Sword(-2, 0, -0.5);
     this.el.appendChild(sword.el);
 
+    const gateSwitch = new GateSwitch(0, -1.3, 2.7);
+    this.el.appendChild(gateSwitch.el);
+
     const shield = new Shield(2, 0, -0.5);
     this.el.appendChild(shield.el);
-
-    const warrior = new Warrior(1.5, 0, 4);
-    this.el.appendChild(warrior.el);
 
     const armoryTable = new ArmoryTable(1.5, -1, 2.25);
     this.el.appendChild(armoryTable.el);
@@ -71,6 +71,7 @@ export class Room extends GameObject {
     this.el.setAttribute("material", {
       side: "double",
       color: "#878787",
+      roughness: 1,
     });
   }
 }
