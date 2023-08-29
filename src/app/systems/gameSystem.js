@@ -1,8 +1,9 @@
-import { Room } from "../entities/room";
-import { Player } from "../entities/player";
-import { Warrior } from "../entities/warrior";
+import {Room} from "../entities/room";
+import {Player} from "../entities/player";
+import {Warrior} from "../entities/warrior";
 
 AFRAME.registerSystem("game-system", {
+  dependencies: ['carry-system'],
   schema: {},
   init: function () {
     this.carrySystem = document.getElementById("scene").systems["carry-system"];
@@ -26,11 +27,15 @@ AFRAME.registerSystem("game-system", {
   },
   processWarriorTrigger: function () {
     this.currentWarrior.el.components["warrior"].moveTo(8, 0, 4);
+    const carrySystem = document.getElementById("scene").systems["carry-system"]
+    carrySystem.reset();
     setTimeout(() => {
       document.getElementById("warrior").remove();
       this.currentWarrior = null;
+      //TODO rework with storing reference to the system
       this.processNextRound();
     }, 2000);
   },
-  tick(time, timeDelta) {},
+  tick(time, timeDelta) {
+  },
 });

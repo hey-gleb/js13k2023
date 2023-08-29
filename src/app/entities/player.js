@@ -10,6 +10,7 @@ export class Player {
     });
     cursor.setAttribute("raycaster-listen", "");
     cursor.setAttribute("cursor-listener", "");
+    // this.el.setAttribute('progress-indicator', '')
     this.el.appendChild(cursor);
   }
 }

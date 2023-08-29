@@ -5,6 +5,7 @@ import { GameObject } from "./gameObject";
 import { Shield } from "./shield";
 import { ArmoryTable } from "./armoryTable";
 import { GateSwitch } from "./gateSwitch";
+import {Table} from "./table";
 
 export class Room extends GameObject {
   constructor(x, y, z, props) {
@@ -31,10 +32,10 @@ export class Room extends GameObject {
     const door = new Door(-1.5, -0.35, -5.99);
     this.el.appendChild(door.el);
 
-    const sword = new Sword(-2, 0, -0.5);
+    const sword = new Sword(-4.5, -0.45, 0);
     this.el.appendChild(sword.el);
 
-    const gateSwitch = new GateSwitch(0, -1.3, 2.7);
+    const gateSwitch = new GateSwitch(0, 0.2, 2);
     this.el.appendChild(gateSwitch.el);
 
     const shield = new Shield(2, 0, -0.5);
@@ -43,10 +44,60 @@ export class Room extends GameObject {
     const armoryTable = new ArmoryTable(1.5, -1, 2.25);
     this.el.appendChild(armoryTable.el);
 
+    const table = new Table(-4.5, 0, 0);
+    this.el.appendChild(table.el);
+
+    const leftWall = document.createElement('a-box');
+    leftWall.setAttribute('position', {
+      x: 3.75,
+      z: 2.5
+    });
+    leftWall.setAttribute('geometry', {
+      height: 3,
+      width: 2.5,
+      depth: 0.5
+    });
+    leftWall.setAttribute('material', {
+      side: 'double'
+    });
+    this.el.appendChild(leftWall);
+    const rightWall = document.createElement('a-box');
+    rightWall.setAttribute('position', {
+      x: -2.25,
+      z: 2.5
+    });
+    rightWall.setAttribute('geometry', {
+      height: 3,
+      width: 5.5,
+      depth: 0.5
+    });
+    rightWall.setAttribute('material', {
+      side: 'double'
+    });
+    this.el.appendChild(rightWall);
+
+    const column = document.createElement('a-box');
+    column.setAttribute('position', {
+      x: 2,
+      z: -3
+    });
+    column.setAttribute('geometry', {
+      height: 3,
+      width: 0.5,
+      depth: 0.5
+    });
+    column.setAttribute('shadow', {
+      receive: false
+    })
+    column.setAttribute('material', {
+    });
+    this.el.appendChild(column)
+
     const trigger = document.createElement("a-entity");
     trigger.setAttribute("position", "1.5 0 1.25");
     trigger.setAttribute("material", {
       wireframe: true,
+      height: 100
     });
     trigger.setAttribute("geometry", {
       primitive: "box",
@@ -73,5 +124,8 @@ export class Room extends GameObject {
       color: "#878787",
       roughness: 1,
     });
+    this.el.setAttribute('shadow', {
+      cast: false
+    })
   }
 }

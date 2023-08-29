@@ -10,6 +10,12 @@ export class Sword extends GameObject {
       height: 0.9,
       radius: 0.02,
     });
+    this.el.setAttribute('rotation', {
+      //TODO remove from here
+      x: 0,
+      y: 45,
+      z: 90
+    })
     const swordGuard = document.createElement("a-entity");
     swordGuard.setAttribute("geometry", {
       primitive: "cylinder",

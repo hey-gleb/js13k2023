@@ -21,6 +21,11 @@ AFRAME.registerSystem("carry-system", {
     armorySlot.components["armory-slot"].content = this.item;
     this.item = null;
   },
+  reset: function () {
+    const armoryTable =
+      document.getElementById("armoryTable").components["armory-table"];
+    armoryTable.resetArmorySlots();
+  },
   tick: function () {
     // TODO compare positions
     // TODO check the position not every tick by 10 times per second

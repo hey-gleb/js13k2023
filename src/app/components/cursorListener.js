@@ -9,6 +9,7 @@ AFRAME.registerComponent("cursor-listener", {
         carrySystem.pickup(evt.detail.intersection.object);
       }
       if (evt.detail.intersectedEl.className === "trigger") {
+        evt.detail.intersection.object.el.components['gate-switch'].handleClick();
         gameSystem.processWarriorTrigger();
       }
       console.log("I was clicked at: ", evt.detail.intersection);
