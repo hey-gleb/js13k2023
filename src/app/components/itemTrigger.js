@@ -3,7 +3,7 @@ AFRAME.registerComponent("item-trigger", {
   init: function () {
     this.playerPosition = null;
     this.temp = new THREE.Vector3();
-    this.carrySystem = document.getElementById("scene").systems["carry-system"];
+    this.carrySystem = document.getElementById("scene").systems["loot-system"];
   },
   //TODO review collision resolver
   isPlayerCollide: function () {
@@ -21,7 +21,7 @@ AFRAME.registerComponent("item-trigger", {
       this.playerPosition = player.object3D.position;
     }
     const isCollide = this.isPlayerCollide();
-    if (isCollide && this.carrySystem.item) {
+    if (isCollide && this.carrySystem.currentPickedLoot) {
       this.carrySystem.drop();
     }
   },

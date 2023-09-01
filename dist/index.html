@@ -1,1 +1,877 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script><style type="text/css">body,html{width:100%;height:100%;margin:0;padding:0}body{background-color:#6495ed}</style></head><body><a-scene id="scene"></a-scene><script type="text/javascript">!function(t){var e={};function i(r){if(e[r])return e[r].exports;var s=e[r]={i:r,l:!1,exports:{}};return t[r].call(s.exports,s,s.exports,i),s.l=!0,s.exports}i.m=t,i.c=e,i.d=function(t,e,r){i.o(t,e)||Object.defineProperty(t,e,{enumerable:!0,get:r})},i.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},i.t=function(t,e){if(1&e&&(t=i(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var r=Object.create(null);if(i.r(r),Object.defineProperty(r,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var s in t)i.d(r,s,function(e){return t[e]}.bind(null,s));return r},i.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return i.d(e,"a",e),e},i.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},i.p="",i(i.s=11)}([function(t,e){AFRAME.registerSystem("carry-system",{init:function(){this.item=null},pickup:function(t){this.item=t},drop:function(){const t=document.getElementById("armoryTable").components["armory-table"].getNextAvailableSlot(),e=(new THREE.Vector3).setFromMatrixPosition(t.object3D.matrixWorld);this.item.el.setAttribute("position",{x:e.x,y:0,z:e.z}),t.components["armory-slot"].content=this.item,this.item=null},reset:function(){document.getElementById("armoryTable").components["armory-table"].resetArmorySlots()},tick:function(){if(this.item){const t=document.getElementById("player"),e=t.object3D.position.x,i=t.object3D.position.z,r=e+.25*Math.cos(t.object3D.rotation.x),s=i+.25*Math.sin(t.object3D.rotation.y);this.item.el.setAttribute("rotation",{y:THREE.MathUtils.radToDeg(t.object3D.rotation.y),z:90}),this.item.el.setAttribute("position",{x:r-.25,y:0,z:s-.25})}}})},function(t,e){AFRAME.registerComponent("warrior",{init:function(){this.moveTo(1.5,0,4)},moveTo:function(t,e,i){this.el.setAttribute("animation__move_to",{property:"position",to:{x:t,z:i},dur:2e3})}})},function(t,e){AFRAME.registerComponent("torch-light",{init:function(){this.el.setAttribute("light",{color:"#fedd39",type:"point",intensity:.5,distance:10,castShadow:!0}),this.el.setAttribute("animation__first",{property:"light.intensity",from:.4,to:.6,dur:2e3,startEvents:["loaded","animationcomplete__second"]}),this.el.setAttribute("animation__second",{property:"light.intensity",from:.6,to:.4,dur:2e3,startEvents:["loaded","animationcomplete__first"]}),this.lastUpdate=0;const t=document.createElement("a-entity");t.setAttribute("position","0 0 -0.35"),t.setAttribute("scale","0.2 0.01 0.2"),this.el.append(t),this.particles=[];for(var e=new THREE.BoxGeometry(.1,10,.1),i=0;i<30;i++){var r=new THREE.MeshStandardMaterial({color:"#863e18",transparent:!1,opacity:1,emissive:"#98240d"}),s=new THREE.MeshStandardMaterial({color:"#463b3b",transparent:!1,opacity:1,emissive:"#4f4f4f"});r.flatShading=!0;var o=!1;o=Math.random()>.5?new THREE.Mesh(e,r):new THREE.Mesh(e,s),this.particles.push({mesh:o}),t.object3D.add(o)}},tick:function(t,e){for(var i=0;i<this.particles.length;i++)if(this.particles[i].mesh.visible){let t=this.particles[i].mesh.position.y+.06*e;this.particles[i].mesh.material.opacity=(120-t)/120,t>120&&(this.particles[i].mesh.visible=!1),this.particles[i].mesh.position.setY(t)}if(t-this.lastUpdate>50){for(i=0;i<this.particles.length;i++)if(0==this.particles[i].mesh.visible){this.particles[i].mesh.visible=!0,this.particles[i].mesh.position.set(1.5*Math.random()-.7,12,1.5*Math.random()-.7);break}this.lastUpdate=t}}})},function(t,e){AFRAME.registerComponent("progress-indicator",{init:function(){const t=document.createElement("a-entity");t.setAttribute("position","-0.5 0.3 -0.5");var e=new THREE.PlaneGeometry(.05,.5);e.rotateZ(1.57079633);var i=new THREE.ShaderMaterial({uniforms:{color1:{value:new THREE.Color("#ff0000")},color2:{value:new THREE.Color("#35ff00")}},vertexShader:"\n    varying vec2 vUv;\n\n    void main() {\n      vUv = uv;\n      gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);\n    }\n  ",fragmentShader:"\n    uniform vec3 color1;\n    uniform vec3 color2;\n\n    varying vec2 vUv;\n\n    void main() {\n\n      gl_FragColor = vec4(mix(color1, color2, vUv.y), 1.0);\n    }\n  "});t.object3D.add(new THREE.Mesh(e,i)),this.el.appendChild(t)}})},function(t,e){AFRAME.registerComponent("armory-slot",{init:function(){this.content=null}})},function(t,e){AFRAME.registerComponent("item-trigger",{init:function(){this.playerPosition=null,this.temp=new THREE.Vector3,this.carrySystem=document.getElementById("scene").systems["carry-system"]},isPlayerCollide:function(){let t=this.el.object3D.worldToLocal(this.temp.copy(this.playerPosition));const e=this.el.components.geometry.geometry.boundingBox;(new THREE.Box3).setFromObject(this.el.object3D);return e&&e.containsPoint(t)},tick:function(){if(!this.playerPosition){let t=document.getElementById("player");if(!t)return;this.playerPosition=t.object3D.position}this.isPlayerCollide()&&this.carrySystem.item&&this.carrySystem.drop()}})},function(t,e){AFRAME.registerComponent("armory-table",{init:function(){this.armorySlots=[],this.createArmorySlots()},createArmorySlots:function(){for(let t=0;t<3;t++){const e=document.createElement("a-box");e.setAttribute("armory-slot",""),e.setAttribute("position",{x:2/3-.675*t,y:.75}),e.setAttribute("material",{wireframe:!0}),e.setAttribute("geometry",{width:.5,height:.5,depth:.5}),this.armorySlots.push(e),this.el.appendChild(e)}},resetArmorySlots:function(){this.armorySlots.forEach(t=>{const e=t.components["armory-slot"].content;e&&(e.el.remove(),t.components["armory-slot"].content=null)})},getNextAvailableSlot:function(){return this.armorySlots.find(t=>!t.components["armory-slot"].content)}})},function(t,e){AFRAME.registerComponent("collider-check",{dependencies:["raycaster"],init:function(){this.el.addEventListener("raycaster-intersection",function(t){console.log("Player hit something!")})}})},function(t,e){AFRAME.registerComponent("cursor-listener",{dependencies:["raycaster"],init:function(){const t=document.getElementById("scene").systems["carry-system"],e=document.getElementById("scene").systems["game-system"];this.el.addEventListener("click",function(i){"collidable"===i.detail.intersectedEl.className&&t.pickup(i.detail.intersection.object),"trigger"===i.detail.intersectedEl.className&&e.processWarriorTrigger(),console.log("I was clicked at: ",i.detail.intersection)})}})},function(t,e){AFRAME.registerComponent("raycaster-listen",{dependencies:["raycaster"],init:function(){this.el.addEventListener("raycaster-intersected",t=>{this.raycaster=t.detail.el}),this.el.addEventListener("raycaster-intersected-cleared",t=>{this.raycaster=null})},tick:function(){if(!this.raycaster)return;this.raycaster.components.raycaster.getIntersection(this.el)}})},function(t,e,i){},function(t,e,i){"use strict";i.r(e);class r{constructor(t=0,e=0,i=0){this.el=document.createElement("a-entity"),this.el.setAttribute("position",{x:t,y:e,z:i})}}class s extends r{constructor(t,e,i,r){super(t,e,i),this.props=r||{rotationX:0,rotationY:0,rotationZ:0},this.el.setAttribute("rotation",{x:this.props.rotationX||0,y:this.props.rotationY||0,z:this.props.rotationZ||0});const s=document.createElement("a-entity");s.setAttribute("position",{z:-.45}),s.setAttribute("geometry",{primitive:"box",width:.05,depth:.05,height:.25}),s.setAttribute("rotation",{x:25}),s.setAttribute("material",{color:"#a1a1a1"}),this.el.appendChild(s),this.el.setAttribute("torch-light","")}}class o extends r{constructor(t,e,i,r){super(t,e,i),this.el.setAttribute("id","door"),this.el.setAttribute("geometry",{primitive:"plane",height:2.5,width:1.4}),this.el.setAttribute("material",{color:"#000000"})}}class n extends r{constructor(t,e,i,r){super(t,e,i),this.el.className="collidable",this.el.setAttribute("geometry",{primitive:"cylinder",height:.9,radius:.02}),this.el.setAttribute("rotation",{x:0,y:45,z:90});const s=document.createElement("a-entity");s.setAttribute("geometry",{primitive:"cylinder",radius:.01,height:.3}),s.setAttribute("rotation",{x:90}),s.setAttribute("position",{y:-.25}),this.el.appendChild(s)}}class a extends r{constructor(t,e,i,r){super(t,e,i),this.el.className="collidable",this.el.setAttribute("geometry",{primitive:"circle",height:.9,radius:.35}),this.el.setAttribute("material",{side:"double"})}}const l=2;class c extends r{constructor(t,e,i,r){super(t,e,i),this.el.setAttribute("id","armoryTable"),this.el.setAttribute("armory-table",""),this.el.setAttribute("geometry",{primitive:"box",width:l}),this.el.setAttribute("material","")}}class h extends r{constructor(t,e,i,r){super(t,e,i),this.el.className="trigger",this.el.setAttribute("geometry",{primitive:"box",height:.3,width:.3,depth:.3})}}const d="#784f4f";class u extends r{constructor(t,e,i){super(t,e,i),this.createTableTop(),this.createTableLegs()}createTableTop(){const t=document.createElement("a-box");t.setAttribute("position",{x:0,y:-.5,z:0}),t.setAttribute("geometry",{depth:2,height:.08}),t.setAttribute("material",{color:d}),this.el.appendChild(t)}createTableLegs(){[...Array(4).keys()].forEach(t=>{const e=document.createElement("a-box");e.setAttribute("position",{x:t%2==0?.3:-.3,y:-1,z:[0,3].includes(t)?.75:-.75}),e.setAttribute("geometry",{depth:.15,width:.15}),e.setAttribute("material",{color:d}),this.el.appendChild(e)})}}class m extends r{constructor(t,e,i,r){super(t,e,i);const l=new s(.5,.5,-5.5);this.el.appendChild(l.el);const d=new s(-4.5,.5,-1,{rotationY:90});this.el.appendChild(d.el);const m=new s(4.5,.5,-1,{rotationY:-90});this.el.appendChild(m.el);const p=new s(.5,.5,4,{rotationY:180});this.el.appendChild(p.el);const y=new o(-1.5,-.35,-5.99);this.el.appendChild(y.el);const b=new n(-4.5,-.45,0);this.el.appendChild(b.el);const f=new h(0,-1.3,2.7);this.el.appendChild(f.el);const g=new a(2,0,-.5);this.el.appendChild(g.el);const A=new c(1.5,-1,2.25);this.el.appendChild(A.el);const E=new u(-4.5,0,0);this.el.appendChild(E.el);const v=document.createElement("a-entity");v.setAttribute("position","1.5 0 1.25"),v.setAttribute("material",{wireframe:!0,height:100}),v.setAttribute("geometry",{primitive:"box",width:2,height:3}),v.setAttribute("item-trigger"),this.el.appendChild(v),this.el.setAttribute("id","room"),this.el.setAttribute("position",{x:t,y:e,z:i}),this.el.setAttribute("geometry",{primitive:"box",width:r.width||1,height:r.height||1,depth:r.depth||1}),this.el.setAttribute("material",{side:"double",color:"#878787",roughness:1})}}class p{constructor(t,e,i,r){this.el=document.createElement("a-camera"),this.el.setAttribute("id","player"),this.el.setAttribute("collider-check","");const s=document.createElement("a-cursor");s.setAttribute("raycaster",{showLine:!0,objects:[".collidable",".trigger"]}),s.setAttribute("raycaster-listen",""),s.setAttribute("cursor-listener",""),this.el.appendChild(s)}}class y extends r{constructor(t,e,i,r){super(t,e,i),this.el.setAttribute("id","warrior"),this.el.setAttribute("warrior",""),this.createBody()}createBody(){const t=document.createElement("a-entity");t.setAttribute("id","head"),t.setAttribute("position",{y:.5}),t.setAttribute("geometry",{primitive:"circle",radius:.3}),t.setAttribute("material",{side:"double"}),this.el.appendChild(t)}}AFRAME.registerSystem("game-system",{dependencies:["carry-system"],schema:{},init:function(){this.carrySystem=document.getElementById("scene").systems["carry-system"],this.room=new m(0,1.25,0,{depth:12,height:3,width:10}),this.player=new p(0,0,0),this.el.appendChild(this.player.el),this.el.appendChild(this.room.el),this.processNextRound()},processNextRound:function(){this.createWarrior()},createWarrior:function(){const t=new y(-4,0,4);this.currentWarrior=t,this.room.el.appendChild(t.el)},processWarriorTrigger:function(){this.currentWarrior.el.components.warrior.moveTo(8,0,4),document.getElementById("scene").systems["carry-system"].reset(),setTimeout(()=>{document.getElementById("warrior").remove(),this.currentWarrior=null,this.processNextRound()},2e3)},tick(t,e){}});i(0),i(1),i(2),i(3),i(4),i(5),i(6),i(7),i(8),i(9),i(10)}]);</script></body></html>
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <style type="text/css">
+      body,
+      html {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-color: #6495ed;
+      }
+    </style>
+  </head>
+  <body>
+    <a-scene id="scene"></a-scene>
+    <script type="text/javascript">
+      !(function (t) {
+        var e = {};
+        function i(o) {
+          if (e[o]) return e[o].exports;
+          var r = (e[o] = { i: o, l: !1, exports: {} });
+          return t[o].call(r.exports, r, r.exports, i), (r.l = !0), r.exports;
+        }
+        (i.m = t),
+          (i.c = e),
+          (i.d = function (t, e, o) {
+            i.o(t, e) ||
+              Object.defineProperty(t, e, { enumerable: !0, get: o });
+          }),
+          (i.r = function (t) {
+            "undefined" != typeof Symbol &&
+              Symbol.toStringTag &&
+              Object.defineProperty(t, Symbol.toStringTag, { value: "Module" }),
+              Object.defineProperty(t, "__esModule", { value: !0 });
+          }),
+          (i.t = function (t, e) {
+            if ((1 & e && (t = i(t)), 8 & e)) return t;
+            if (4 & e && "object" == typeof t && t && t.__esModule) return t;
+            var o = Object.create(null);
+            if (
+              (i.r(o),
+              Object.defineProperty(o, "default", { enumerable: !0, value: t }),
+              2 & e && "string" != typeof t)
+            )
+              for (var r in t)
+                i.d(
+                  o,
+                  r,
+                  function (e) {
+                    return t[e];
+                  }.bind(null, r),
+                );
+            return o;
+          }),
+          (i.n = function (t) {
+            var e =
+              t && t.__esModule
+                ? function () {
+                    return t.default;
+                  }
+                : function () {
+                    return t;
+                  };
+            return i.d(e, "a", e), e;
+          }),
+          (i.o = function (t, e) {
+            return Object.prototype.hasOwnProperty.call(t, e);
+          }),
+          (i.p = ""),
+          i((i.s = 12));
+      })([
+        function (t, e) {
+          AFRAME.registerSystem("loot-system", {
+            init: function () {
+              this.currentPickedLoot = null;
+              let t = [];
+              setTimeout(function () {
+                let e = 1,
+                  i = document.getElementById(`spawn-spot-${e}`).components[
+                    "armory-spawn-spot"
+                  ];
+                for (; i; )
+                  (i = document.getElementById(`spawn-spot-${e}`).components[
+                    "armory-spawn-spot"
+                  ]),
+                    t.push(i),
+                    e++;
+              }, 100),
+                (this.armorySpawnSlots = t);
+            },
+            pickup: function (t) {
+              (this.currentPickedLoot = t),
+                document
+                  .getElementById(t.el.components.carriable.parentId)
+                  .components["armory-spawn-spot"].resetContent();
+            },
+            drop: function () {
+              const t = document
+                  .getElementById("armoryTable")
+                  .components["armory-table"].getNextAvailableSlot(),
+                e = new THREE.Vector3().setFromMatrixPosition(
+                  t.object3D.matrixWorld,
+                );
+              this.currentPickedLoot.el.setAttribute("position", {
+                x: e.x,
+                y: 0,
+                z: e.z,
+              }),
+                (t.components["armory-slot"].content = this.currentPickedLoot),
+                (this.currentPickedLoot = null);
+            },
+            reset: function () {
+              document
+                .getElementById("armoryTable")
+                .components["armory-table"].resetArmorySlots();
+            },
+            processArmorySpawn: function () {
+              this.armorySpawnSlots.forEach((t) => {
+                t.spawnArmory();
+              });
+            },
+            tick: function () {
+              if (this.currentPickedLoot) {
+                const t = document.getElementById("player"),
+                  e = t.object3D.position.x,
+                  i = t.object3D.position.z,
+                  o = e + 0.25 * Math.cos(t.object3D.rotation.x),
+                  r = i + 0.25 * Math.sin(t.object3D.rotation.z);
+                this.currentPickedLoot.el.setAttribute("rotation", {
+                  y: THREE.MathUtils.radToDeg(t.object3D.rotation.y),
+                  z: 90,
+                }),
+                  this.currentPickedLoot.el.setAttribute("position", {
+                    x: o - 0.25,
+                    y: 0,
+                    z: r - 0.25,
+                  });
+              }
+            },
+          });
+        },
+        function (t, e) {
+          AFRAME.registerComponent("warrior", {
+            init: function () {
+              this.moveTo(1.5, 0, 4);
+            },
+            moveTo: function (t, e, i) {
+              this.el.setAttribute("animation__move_to", {
+                property: "position",
+                to: { x: t, z: i },
+                dur: 2e3,
+              });
+            },
+          });
+        },
+        function (t, e) {
+          AFRAME.registerComponent("carriable", {
+            schema: { parentId: { type: "string", default: "" } },
+            init: function () {
+              this.parentId = this.data.parentId;
+            },
+          });
+        },
+        function (t, e) {
+          AFRAME.registerComponent("gate-switch", {
+            init: function () {},
+            handleClick: function () {
+              const t = document.getElementById("switcher");
+              t.setAttribute("animation__rotation-down", {
+                property: "rotation.x",
+                to: -135,
+                dur: 800,
+                easing: "linear",
+              }),
+                t.setAttribute("animation__down", {
+                  property: "position",
+                  to: { x: 0, y: -0.1, z: -0.1 },
+                  easing: "linear",
+                  dur: 800,
+                }),
+                t.setAttribute("animation__up", {
+                  property: "position",
+                  to: { x: 0, y: 0.1, z: -0.1 },
+                  dur: 800,
+                  easing: "linear",
+                  startEvents: ["animationcomplete__down"],
+                }),
+                t.setAttribute("animation__rotation-up", {
+                  property: "rotation.x",
+                  from: -135,
+                  to: -45,
+                  easing: "linear",
+                  dur: 800,
+                  startEvents: ["animationcomplete__rotation-down"],
+                });
+            },
+          });
+        },
+        function (t, e) {
+          let i;
+          AFRAME.registerComponent("progress-indicator", {
+            init: function () {
+              const t = [-12, 12].reduce((t, e) => t + Math.abs(e), 0);
+              this.stepOffset = 0.18 / t;
+              const e = document.createElement("a-entity");
+              e.setAttribute("position", "0 0.35 -0.5"),
+                (i = document.createElement("a-plane")).setAttribute(
+                  "position",
+                  { x: 0, y: 0.315, z: -0.45 },
+                ),
+                i.setAttribute("geometry", { width: 0.01, height: 0.025 }),
+                i.setAttribute("material", { roughness: 1, color: "#000" });
+              var o = new THREE.PlaneGeometry(0.015, 0.4);
+              console.log(o), o.rotateZ(1.57079633);
+              var r = new THREE.ShaderMaterial({
+                uniforms: {
+                  color1: { value: new THREE.Color("#ff0000") },
+                  color2: { value: new THREE.Color("#35ff00") },
+                },
+                vertexShader:
+                  "\n    varying vec2 vUv;\n\n    void main() {\n      vUv = uv;\n      gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);\n    }\n  ",
+                fragmentShader:
+                  "\n    uniform vec3 color1;\n    uniform vec3 color2;\n\n    varying vec2 vUv;\n\n    void main() {\n\n      gl_FragColor = vec4(mix(color1, color2, vUv.y), 1.0);\n    }\n  ",
+              });
+              e.object3D.add(new THREE.Mesh(o, r)),
+                this.el.appendChild(i),
+                this.el.appendChild(e);
+            },
+            doStep: function (t) {
+              const e = parseFloat(i.object3D.position.x);
+              i.setAttribute("position", {
+                x: e + t * this.stepOffset,
+                y: 0.315,
+                z: -0.45,
+              });
+            },
+          });
+        },
+        function (t, e) {
+          AFRAME.registerComponent("armory-slot", {
+            init: function () {
+              this.content = null;
+            },
+          });
+        },
+        function (t, e) {
+          AFRAME.registerComponent("item-trigger", {
+            init: function () {
+              (this.playerPosition = null),
+                (this.temp = new THREE.Vector3()),
+                (this.carrySystem =
+                  document.getElementById("scene").systems["loot-system"]);
+            },
+            isPlayerCollide: function () {
+              let t = this.el.object3D.worldToLocal(
+                this.temp.copy(this.playerPosition),
+              );
+              const e = this.el.components.geometry.geometry.boundingBox;
+              new THREE.Box3().setFromObject(this.el.object3D);
+              return e && e.containsPoint(t);
+            },
+            tick: function () {
+              if (!this.playerPosition) {
+                let t = document.getElementById("player");
+                if (!t) return;
+                this.playerPosition = t.object3D.position;
+              }
+              this.isPlayerCollide() &&
+                this.carrySystem.currentPickedLoot &&
+                this.carrySystem.drop();
+            },
+          });
+        },
+        function (t, e) {
+          AFRAME.registerComponent("armory-table", {
+            init: function () {
+              (this.armorySlots = []), this.createArmorySlots();
+            },
+            createArmorySlots: function () {
+              for (let t = 0; t < 3; t++) {
+                const e = document.createElement("a-box");
+                e.setAttribute("armory-slot", ""),
+                  e.setAttribute("position", { x: 2 / 3 - 0.675 * t, y: 0.75 }),
+                  e.setAttribute("material", { wireframe: !0 }),
+                  e.setAttribute("geometry", {
+                    width: 0.5,
+                    height: 0.5,
+                    depth: 0.5,
+                  }),
+                  this.armorySlots.push(e),
+                  this.el.appendChild(e);
+              }
+            },
+            resetArmorySlots: function () {
+              this.armorySlots.forEach((t) => {
+                const e = t.components["armory-slot"].content;
+                e &&
+                  (e.el.remove(), (t.components["armory-slot"].content = null));
+              });
+            },
+            getNextAvailableSlot: function () {
+              return this.armorySlots.find(
+                (t) => !t.components["armory-slot"].content,
+              );
+            },
+          });
+        },
+        function (t, e) {
+          AFRAME.registerComponent("collider-check", {
+            dependencies: ["raycaster"],
+            init: function () {
+              this.el.addEventListener("raycaster-intersection", function (t) {
+                console.log("Player hit something!");
+              });
+            },
+          });
+        },
+        function (t, e) {
+          AFRAME.registerComponent("cursor-listener", {
+            dependencies: ["raycaster"],
+            init: function () {
+              const t = document.getElementById("scene").systems["loot-system"],
+                e = document.getElementById("scene").systems["game-system"];
+              this.el.addEventListener("click", function (i) {
+                "collidable" === i.detail.intersectedEl.className &&
+                  t.pickup(i.detail.intersection.object),
+                  "trigger" === i.detail.intersectedEl.className &&
+                    (i.detail.intersection.object.el.components[
+                      "gate-switch"
+                    ].handleClick(),
+                    e.processWarriorTrigger()),
+                  console.log("I was clicked at: ", i.detail.intersection);
+              });
+            },
+          });
+        },
+        function (t, e) {
+          AFRAME.registerComponent("raycaster-listen", {
+            dependencies: ["raycaster"],
+            init: function () {
+              this.el.addEventListener("raycaster-intersected", (t) => {
+                this.raycaster = t.detail.el;
+              }),
+                this.el.addEventListener(
+                  "raycaster-intersected-cleared",
+                  (t) => {
+                    this.raycaster = null;
+                  },
+                );
+            },
+            tick: function () {
+              if (!this.raycaster) return;
+              this.raycaster.components.raycaster.getIntersection(this.el);
+            },
+          });
+        },
+        function (t, e, i) {},
+        function (t, e, i) {
+          "use strict";
+          i.r(e);
+          class o {
+            constructor(t = 0, e = 0, i = 0) {
+              (this.el = document.createElement("a-entity")),
+                this.el.setAttribute("position", { x: t, y: e, z: i });
+            }
+          }
+          class r extends o {
+            constructor(t, e, i, o) {
+              super(t, e, i),
+                (this.props = o || {
+                  rotationX: 0,
+                  rotationY: 0,
+                  rotationZ: 0,
+                }),
+                this.el.setAttribute("rotation", {
+                  x: this.props.rotationX || 0,
+                  y: this.props.rotationY || 0,
+                  z: this.props.rotationZ || 0,
+                });
+              const r = document.createElement("a-entity");
+              r.setAttribute("position", { z: -0.45 }),
+                r.setAttribute("geometry", {
+                  primitive: "box",
+                  width: 0.05,
+                  depth: 0.05,
+                  height: 0.25,
+                }),
+                r.setAttribute("rotation", { x: 25 }),
+                r.setAttribute("material", { color: "#a1a1a1" }),
+                this.el.appendChild(r),
+                this.el.setAttribute("torch-light", "");
+            }
+          }
+          class s extends o {
+            constructor(t, e, i, o) {
+              super(t, e, i),
+                this.el.setAttribute("id", "door"),
+                this.el.setAttribute("geometry", {
+                  primitive: "plane",
+                  height: 2.5,
+                  width: 1.4,
+                }),
+                this.el.setAttribute("material", {
+                  color: "#6b3013",
+                  roughness: 1,
+                });
+            }
+          }
+          class n extends o {
+            constructor(t, e, i, o) {
+              super(e, i, o),
+                (this.el.className = "collidable"),
+                this.el.setAttribute("carriable", { parentId: t });
+            }
+          }
+          class a extends n {
+            constructor(t, e, i, o, r) {
+              super(t, e, i, o),
+                this.el.setAttribute("geometry", { primitive: "box" }),
+                this.el.setAttribute("material", {
+                  transparent: !0,
+                  opacity: 0,
+                }),
+                this.el.setAttribute("rotation", { x: 0, y: 90 });
+              const s = [
+                  new THREE.Vector3(0, 0.1, -0.06),
+                  new THREE.Vector3(0, 0.1, 0.06),
+                  new THREE.Vector3(0, 0.75, -0.06),
+                  new THREE.Vector3(0, 0.1, 0.06),
+                  new THREE.Vector3(0, 0.75, 0.06),
+                  new THREE.Vector3(0, 0.75, -0.06),
+                  new THREE.Vector3(0, 0.75, 0.06),
+                  new THREE.Vector3(0, 0.9, 0),
+                  new THREE.Vector3(0, 0.75, -0.06),
+                ],
+                n = new THREE.MeshNormalMaterial({ side: THREE.DoubleSide }),
+                a = new THREE.BufferGeometry();
+              a.setFromPoints(s);
+              const c = new THREE.Mesh(a, n),
+                l = new THREE.BoxGeometry(0.05, 0.05, 0.25),
+                d = new THREE.Mesh(l, n);
+              l.translate(0, 0.1, 0);
+              const h = new THREE.CylinderGeometry(0.02, 0.02, 0.2, 9),
+                u = new THREE.Mesh(h, n),
+                p = new THREE.Group();
+              p.add(u), p.add(d), p.add(c), this.el.object3D.add(p);
+            }
+          }
+          class c extends n {
+            constructor(t, e, i, o, r) {
+              super(t, e, i, o),
+                this.el.setAttribute("geometry", {
+                  primitive: "circle",
+                  height: 0.9,
+                  radius: 0.35,
+                }),
+                this.el.setAttribute("material", { side: "double" });
+            }
+          }
+          const l = 2;
+          class d extends o {
+            constructor(t, e, i, o) {
+              super(t, e, i),
+                this.el.setAttribute("id", "armoryTable"),
+                this.el.setAttribute("armory-table", ""),
+                this.el.setAttribute("geometry", {
+                  primitive: "box",
+                  width: l,
+                }),
+                this.el.setAttribute("material", "");
+            }
+          }
+          class h extends o {
+            constructor(t, e, i, o) {
+              super(t, e, i),
+                (this.el.className = "trigger"),
+                this.el.setAttribute("id", "gate-switch"),
+                this.el.setAttribute("gate-switch", ""),
+                this.el.setAttribute("geometry", {
+                  width: 0.4,
+                  height: 0.5,
+                  depth: 0.4,
+                }),
+                this.el.setAttribute("material", { wireframe: !0 });
+              const r = document.createElement("a-box");
+              r.setAttribute("geometry", {
+                primitive: "box",
+                height: 0.3,
+                width: 0.3,
+                depth: 0.1,
+              }),
+                r.setAttribute("color", "#000");
+              const s = document.createElement("a-cylinder");
+              s.setAttribute("id", "switcher"),
+                s.setAttribute("color", "#989898"),
+                s.setAttribute("position", "0 0.1 -0.1"),
+                s.setAttribute("rotation", { x: -45 }),
+                s.setAttribute("geometry", { radius: 0.04, height: 0.3 }),
+                this.el.appendChild(s),
+                this.el.appendChild(r);
+            }
+          }
+          const u = "#784f4f";
+          class p extends o {
+            constructor(t, e, i) {
+              super(t, e, i),
+                this.el.setAttribute("shadow", {}),
+                this.createTableTop(),
+                this.createTableLegs();
+            }
+            createTableTop() {
+              const t = document.createElement("a-box");
+              t.setAttribute("position", { x: 0, y: -0.5, z: 0 }),
+                t.setAttribute("geometry", { depth: 2, height: 0.08 }),
+                t.setAttribute("material", { color: u }),
+                this.el.appendChild(t);
+            }
+            createTableLegs() {
+              [...Array(4).keys()].forEach((t) => {
+                const e = document.createElement("a-box");
+                e.setAttribute("position", {
+                  x: t % 2 == 0 ? 0.3 : -0.3,
+                  y: -1,
+                  z: [0, 3].includes(t) ? 0.75 : -0.75,
+                }),
+                  e.setAttribute("geometry", { depth: 0.15, width: 0.15 }),
+                  e.setAttribute("material", { color: u }),
+                  this.el.appendChild(e);
+              });
+            }
+          }
+          class m extends o {
+            constructor(t, e, i, { id: o }) {
+              super(t, e, i),
+                this.el.setAttribute("id", o),
+                this.el.setAttribute("armory-spawn-spot", "");
+            }
+          }
+          class y extends n {
+            constructor(t, e, i, o, r) {
+              super(t, e, i, o, r),
+                this.el.setAttribute("geometry", { primitive: "box" }),
+                this.el.setAttribute("material", {
+                  transparent: !0,
+                  opacity: 0,
+                }),
+                this.el.setAttribute("rotation", { x: 0, y: 90 });
+              const s = new THREE.LineBasicMaterial({
+                  color: "#652e13",
+                  linewidth: 1,
+                  side: THREE.DoubleSide,
+                }),
+                n = new THREE.BoxGeometry(0.05, 0.3, 0.05);
+              n.translate(0, -0.4, -0.265), n.rotateX(-0.8);
+              const a = new THREE.Mesh(n, s),
+                c = new THREE.BoxGeometry(0.05, 0.3, 0.05);
+              c.translate(0, 0.4, -0.265), c.rotateX(0.8);
+              const l = new THREE.Mesh(c, s),
+                d = new THREE.BoxGeometry(0.05, 0.755, 0.05),
+                h = new THREE.Mesh(d, s),
+                u = new THREE.Group();
+              u.add(a), u.add(l), u.add(h), this.el.object3D.add(u);
+            }
+          }
+          class b extends o {
+            constructor(t, e, i, o) {
+              super(t, e, i);
+              const n = new r(0.5, 0.5, -5.5);
+              this.el.appendChild(n.el);
+              const a = new r(-4.5, 0.5, -1, { rotationY: 90 });
+              this.el.appendChild(a.el);
+              const c = new r(4.5, 0.5, -1, { rotationY: -90 });
+              this.el.appendChild(c.el);
+              const l = new r(0.5, 0.5, 4, { rotationY: 180 });
+              this.el.appendChild(l.el);
+              const u = new s(-1.5, -0.35, -5.99);
+              this.el.appendChild(u.el);
+              const y = new h(0, 0.2, 2);
+              this.el.appendChild(y.el);
+              const b = new d(1.5, -1, 2.25);
+              this.el.appendChild(b.el);
+              const E = new p(-4.5, 0, 0);
+              this.el.appendChild(E.el);
+              const A = new m(-3, -1, -3.5, { id: "spawn-spot-1" });
+              this.el.appendChild(A.el);
+              const g = new m(-2, -1, -3.5, { id: "spawn-spot-2" });
+              this.el.appendChild(g.el);
+              const f = new m(-1, -1, -3.5, { id: "spawn-spot-3" });
+              this.el.appendChild(f.el);
+              const w = new m(0, -1, -3.5, { id: "spawn-spot-4" });
+              this.el.appendChild(w.el);
+              const x = document.createElement("a-box");
+              x.setAttribute("position", { x: 3.75, z: 2.5 }),
+                x.setAttribute("geometry", {
+                  height: 3,
+                  width: 2.5,
+                  depth: 0.5,
+                }),
+                x.setAttribute("material", {
+                  side: "double",
+                  color: "#8f8f8f",
+                  roughness: 1,
+                }),
+                this.el.appendChild(x);
+              const v = document.createElement("a-box");
+              v.setAttribute("position", { x: -2.25, z: 2.5 }),
+                v.setAttribute("geometry", {
+                  height: 3,
+                  width: 5.5,
+                  depth: 0.5,
+                }),
+                v.setAttribute("material", {
+                  side: "double",
+                  color: "#8f8f8f",
+                  roughness: 1,
+                }),
+                this.el.appendChild(v);
+              const T = document.createElement("a-box");
+              T.setAttribute("position", { x: 2, z: -3 }),
+                T.setAttribute("geometry", {
+                  height: 3,
+                  width: 0.5,
+                  depth: 0.5,
+                }),
+                T.setAttribute("shadow", { receive: !1 }),
+                T.setAttribute("material", { color: "#8f8f8f", roughness: 1 }),
+                this.el.appendChild(T);
+              const R = document.createElement("a-entity");
+              R.setAttribute("position", "1.5 0 1.25"),
+                R.setAttribute("material", { wireframe: !0, height: 100 }),
+                R.setAttribute("geometry", {
+                  primitive: "box",
+                  width: 2,
+                  height: 3,
+                }),
+                R.setAttribute("item-trigger"),
+                this.el.appendChild(R),
+                this.el.setAttribute("id", "room"),
+                this.el.setAttribute("position", { x: t, y: e, z: i }),
+                this.el.setAttribute("geometry", {
+                  primitive: "box",
+                  width: o.width || 1,
+                  height: o.height || 1,
+                  depth: o.depth || 1,
+                }),
+                this.el.setAttribute("material", {
+                  side: "double",
+                  color: "#8f8f8f",
+                  roughness: 1,
+                }),
+                this.el.setAttribute("shadow", { cast: !1 });
+            }
+          }
+          class E {
+            constructor(t, e, i, o) {
+              (this.el = document.createElement("a-camera")),
+                this.el.setAttribute("id", "player"),
+                this.el.setAttribute("collider-check", "");
+              const r = document.createElement("a-cursor");
+              r.setAttribute("raycaster", {
+                showLine: !0,
+                objects: [".collidable", ".trigger"],
+              }),
+                r.setAttribute("raycaster-listen", ""),
+                r.setAttribute("cursor-listener", ""),
+                this.el.setAttribute("progress-indicator", ""),
+                this.el.appendChild(r);
+            }
+          }
+          class A extends o {
+            constructor(t, e, i, o) {
+              super(t, e, i),
+                this.el.setAttribute("id", "warrior"),
+                this.el.setAttribute("warrior", ""),
+                this.createBody();
+            }
+            createBody() {
+              const t = document.createElement("a-entity");
+              t.setAttribute("id", "head"),
+                t.setAttribute("position", { y: 0.5 }),
+                t.setAttribute("geometry", {
+                  primitive: "circle",
+                  radius: 0.3,
+                }),
+                t.setAttribute("material", { side: "double", color: "black" }),
+                this.el.appendChild(t);
+              const e = document.createElement("a-entity");
+              e.setAttribute("id", "body"),
+                e.setAttribute("position", { y: -0.5 }),
+                e.setAttribute("geometry", {
+                  primitive: "circle",
+                  radius: 0.5,
+                }),
+                e.setAttribute("material", { side: "double", color: "black" }),
+                this.el.appendChild(e);
+            }
+          }
+          const g = (t, e) => Math.random() * (e - t) + t;
+          AFRAME.registerSystem("game-system", {
+            dependencies: ["loot-system"],
+            schema: {},
+            init: function () {
+              (this.carrySystem =
+                document.getElementById("scene").systems["loot-system"]),
+                (this.room = new b(0, 1.25, 0, {
+                  depth: 12,
+                  height: 3,
+                  width: 10,
+                })),
+                (this.player = new E(0, 0, 0)),
+                this.el.appendChild(this.player.el),
+                this.el.appendChild(this.room.el),
+                this.processNextRound(),
+                setInterval(function () {
+                  document.getElementById("player").components[
+                    "progress-indicator"
+                  ],
+                    Math.round(g(0, 3));
+                }, 5e3);
+            },
+            processNextRound: function () {
+              this.createWarrior(),
+                setTimeout(function () {
+                  document
+                    .getElementById("scene")
+                    .systems["loot-system"].processArmorySpawn();
+                }, 100);
+            },
+            createWarrior: function () {
+              const t = new A(-4, 0, 4);
+              (this.currentWarrior = t), this.room.el.appendChild(t.el);
+            },
+            processWarriorTrigger: function () {
+              this.currentWarrior.el.components.warrior.moveTo(8, 0, 4);
+              const t = document.getElementById("scene").systems["loot-system"];
+              document
+                .getElementById("player")
+                .components["progress-indicator"].doStep(-2),
+                t.reset(),
+                setTimeout(() => {
+                  document.getElementById("warrior").remove(),
+                    (this.currentWarrior = null),
+                    this.processNextRound();
+                }, 2e3);
+            },
+            tick(t, e) {},
+          });
+          i(0), i(1);
+          AFRAME.registerComponent("torch-light", {
+            init: function () {
+              this.el.setAttribute("light", {
+                color: "#fedd39",
+                type: "point",
+                intensity: 0.5,
+                distance: 10,
+                castShadow: !0,
+              });
+              const t = parseFloat(Number(g(0.2, 0.4)).toFixed(2)),
+                e = parseFloat(Number(g(t, 0.6)).toFixed(2)),
+                i = Math.round(g(1e3, 2500));
+              this.el.setAttribute("animation__first", {
+                property: "light.intensity",
+                from: t,
+                to: e,
+                dur: i,
+                startEvents: ["loaded", "animationcomplete__second"],
+              }),
+                this.el.setAttribute("animation__second", {
+                  property: "light.intensity",
+                  from: e,
+                  to: t,
+                  dur: i,
+                  startEvents: ["loaded", "animationcomplete__first"],
+                }),
+                (this.lastUpdate = 0);
+              const o = document.createElement("a-entity");
+              o.setAttribute("position", "0 0 -0.35"),
+                o.setAttribute("scale", "0.2 0.01 0.2"),
+                this.el.append(o),
+                (this.particles = []);
+              for (
+                var r = new THREE.BoxGeometry(0.1, 10, 0.1), s = 0;
+                s < 30;
+                s++
+              ) {
+                var n = new THREE.MeshStandardMaterial({
+                    color: "#863e18",
+                    transparent: !1,
+                    opacity: 1,
+                    emissive: "#98240d",
+                  }),
+                  a = new THREE.MeshStandardMaterial({
+                    color: "#463b3b",
+                    transparent: !1,
+                    opacity: 1,
+                    emissive: "#4f4f4f",
+                  });
+                n.flatShading = !0;
+                var c = !1;
+                (c =
+                  Math.random() > 0.5
+                    ? new THREE.Mesh(r, n)
+                    : new THREE.Mesh(r, a)),
+                  this.particles.push({ mesh: c }),
+                  o.object3D.add(c);
+              }
+            },
+            tick: function (t, e) {
+              for (var i = 0; i < this.particles.length; i++)
+                if (this.particles[i].mesh.visible) {
+                  let t = this.particles[i].mesh.position.y + 0.06 * e;
+                  (this.particles[i].mesh.material.opacity = (120 - t) / 120),
+                    t > 120 && (this.particles[i].mesh.visible = !1),
+                    this.particles[i].mesh.position.setY(t);
+                }
+              if (t - this.lastUpdate > 50) {
+                for (i = 0; i < this.particles.length; i++)
+                  if (0 == this.particles[i].mesh.visible) {
+                    (this.particles[i].mesh.visible = !0),
+                      this.particles[i].mesh.position.set(
+                        1.5 * Math.random() - 0.7,
+                        12,
+                        1.5 * Math.random() - 0.7,
+                      );
+                    break;
+                  }
+                this.lastUpdate = t;
+              }
+            },
+          });
+          i(2);
+          AFRAME.registerComponent("armory-spawn-spot", {
+            init: function () {
+              this.content,
+                this.el.setAttribute("geometry", {
+                  primitive: "box",
+                  width: 0.5,
+                  height: 0.5,
+                  depth: 0.5,
+                }),
+                this.el.setAttribute("material", { wireframe: !0 });
+            },
+            spawnArmory: function () {
+              if (this.content) return;
+              const t = this.getRandomArmory();
+              (this.content = t),
+                document
+                  .getElementById("scene")
+                  .systems["game-system"].room.el.appendChild(t.el);
+            },
+            getRandomArmory: function () {
+              const { x: t, y: e, z: i } = this.el.object3D.position,
+                o = Math.random();
+              return o < 0.3
+                ? new a(this.el.id, t, e, i)
+                : o < 0.6
+                ? new y(this.el.id, t, e, i)
+                : o < 1
+                ? new c(this.el.id, t, e, i)
+                : void 0;
+            },
+            resetContent: function () {
+              this.content = null;
+            },
+          });
+          i(3), i(4), i(5), i(6), i(7), i(8), i(9), i(10), i(11);
+        },
+      ]);
+    </script>
+  </body>
+</html>

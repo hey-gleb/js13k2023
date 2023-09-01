@@ -15,7 +15,8 @@ export class Door extends GameObject {
       width: 1.4,
     });
     this.el.setAttribute("material", {
-      color: "#000000",
+      color: "#6b3013",
+      roughness: 1,
     });
   }
 }

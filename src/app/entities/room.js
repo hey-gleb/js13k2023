@@ -1,11 +1,10 @@
 import { Torch } from "./torch";
 import { Door } from "./door";
-import { Sword } from "./sword";
 import { GameObject } from "./gameObject";
-import { Shield } from "./shield";
 import { ArmoryTable } from "./armoryTable";
 import { GateSwitch } from "./gateSwitch";
-import {Table} from "./table";
+import { Table } from "./table";
+import { ArmorySpawn } from "./armorySpawn";
 
 export class Room extends GameObject {
   constructor(x, y, z, props) {
@@ -32,14 +31,8 @@ export class Room extends GameObject {
     const door = new Door(-1.5, -0.35, -5.99);
     this.el.appendChild(door.el);
 
-    const sword = new Sword(-4.5, -0.45, 0);
-    this.el.appendChild(sword.el);
-
     const gateSwitch = new GateSwitch(0, 0.2, 2);
     this.el.appendChild(gateSwitch.el);
-
-    const shield = new Shield(2, 0, -0.5);
-    this.el.appendChild(shield.el);
 
     const armoryTable = new ArmoryTable(1.5, -1, 2.25);
     this.el.appendChild(armoryTable.el);
@@ -47,57 +40,76 @@ export class Room extends GameObject {
     const table = new Table(-4.5, 0, 0);
     this.el.appendChild(table.el);
 
-    const leftWall = document.createElement('a-box');
-    leftWall.setAttribute('position', {
+    const spawnSpot1 = new ArmorySpawn(-3, -1, -3.5, { id: "spawn-spot-1" });
+    this.el.appendChild(spawnSpot1.el);
+
+    const spawnSpot2 = new ArmorySpawn(-2, -1, -3.5, { id: "spawn-spot-2" });
+    this.el.appendChild(spawnSpot2.el);
+
+    const spawnSpot3 = new ArmorySpawn(-1, -1, -3.5, { id: "spawn-spot-3" });
+    this.el.appendChild(spawnSpot3.el);
+
+    const spawnSpot4 = new ArmorySpawn(0, -1, -3.5, { id: "spawn-spot-4" });
+    this.el.appendChild(spawnSpot4.el);
+
+    const leftWall = document.createElement("a-box");
+    leftWall.setAttribute("position", {
       x: 3.75,
-      z: 2.5
+      z: 2.5,
     });
-    leftWall.setAttribute('geometry', {
+    leftWall.setAttribute("geometry", {
       height: 3,
       width: 2.5,
-      depth: 0.5
+      depth: 0.5,
     });
-    leftWall.setAttribute('material', {
-      side: 'double'
+    leftWall.setAttribute("material", {
+      side: "double",
+      color: "#8f8f8f",
+      roughness: 1,
     });
     this.el.appendChild(leftWall);
-    const rightWall = document.createElement('a-box');
-    rightWall.setAttribute('position', {
+    const rightWall = document.createElement("a-box");
+    rightWall.setAttribute("position", {
       x: -2.25,
-      z: 2.5
+      z: 2.5,
     });
-    rightWall.setAttribute('geometry', {
+    rightWall.setAttribute("geometry", {
       height: 3,
       width: 5.5,
-      depth: 0.5
+      depth: 0.5,
     });
-    rightWall.setAttribute('material', {
-      side: 'double'
+    rightWall.setAttribute("material", {
+      side: "double",
+      color: "#8f8f8f",
+      roughness: 1,
     });
     this.el.appendChild(rightWall);
 
-    const column = document.createElement('a-box');
-    column.setAttribute('position', {
+    const column = document.createElement("a-box");
+    column.setAttribute("position", {
       x: 2,
-      z: -3
+      z: -3,
     });
-    column.setAttribute('geometry', {
+    column.setAttribute("geometry", {
       height: 3,
       width: 0.5,
-      depth: 0.5
+      depth: 0.5,
     });
-    column.setAttribute('shadow', {
-      receive: false
-    })
-    column.setAttribute('material', {
+    column.setAttribute("shadow", {
+      receive: false,
     });
-    this.el.appendChild(column)
+    column.setAttribute("material", {
+      color: "#8f8f8f",
+
+      roughness: 1,
+    });
+    this.el.appendChild(column);
 
     const trigger = document.createElement("a-entity");
     trigger.setAttribute("position", "1.5 0 1.25");
     trigger.setAttribute("material", {
       wireframe: true,
-      height: 100
+      height: 100,
     });
     trigger.setAttribute("geometry", {
       primitive: "box",
@@ -121,11 +133,11 @@ export class Room extends GameObject {
     });
     this.el.setAttribute("material", {
       side: "double",
-      color: "#878787",
+      color: "#8f8f8f",
       roughness: 1,
     });
-    this.el.setAttribute('shadow', {
-      cast: false
-    })
+    this.el.setAttribute("shadow", {
+      cast: false,
+    });
   }
 }

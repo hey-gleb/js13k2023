@@ -1,9 +1,8 @@
-import { GameObject } from "./gameObject";
+import { ArmoryObject } from "../armoryObject";
 
-export class Shield extends GameObject {
-  constructor(x, y, z, props) {
-    super(x, y, z);
-    this.el.className = "collidable";
+export class Shield extends ArmoryObject {
+  constructor(parentId, x, y, z, props) {
+    super(parentId, x, y, z);
     this.el.setAttribute("geometry", {
       primitive: "circle",
       height: 0.9,

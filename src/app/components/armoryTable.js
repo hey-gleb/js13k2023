@@ -30,13 +30,13 @@ AFRAME.registerComponent("armory-table", {
     }
   },
   resetArmorySlots: function () {
-    this.armorySlots.forEach(armorySlot => {
+    this.armorySlots.forEach((armorySlot) => {
       //TODO move to the component
       const armorySlotContent = armorySlot.components["armory-slot"].content;
-      if(!armorySlotContent) return;
+      if (!armorySlotContent) return;
       armorySlotContent.el.remove();
       armorySlot.components["armory-slot"].content = null;
-    })
+    });
   },
   getNextAvailableSlot: function () {
     // TODO verify if no more available slots

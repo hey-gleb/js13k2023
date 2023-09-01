@@ -9,35 +9,34 @@ export class Warrior extends GameObject {
     this.createBody();
   }
 
-  createBody () {
-    const head = document.createElement('a-entity');
-    head.setAttribute('id', 'head');
-    head.setAttribute('position', {
-      y: 0.5
+  createBody() {
+    const head = document.createElement("a-entity");
+    head.setAttribute("id", "head");
+    head.setAttribute("position", {
+      y: 0.5,
     });
-    head.setAttribute('geometry', {
-      primitive: 'circle',
-      radius: 0.3
+    head.setAttribute("geometry", {
+      primitive: "circle",
+      radius: 0.3,
     });
-    head.setAttribute('material', {
-      side: 'double',
-      color: 'black'
-
-    })
+    head.setAttribute("material", {
+      side: "double",
+      color: "black",
+    });
     this.el.appendChild(head);
-    const body = document.createElement('a-entity');
-    body.setAttribute('id', 'body');
-    body.setAttribute('position', {
-      y: -0.5
+    const body = document.createElement("a-entity");
+    body.setAttribute("id", "body");
+    body.setAttribute("position", {
+      y: -0.5,
     });
-    body.setAttribute('geometry', {
-      primitive: 'circle',
-      radius: 0.5
+    body.setAttribute("geometry", {
+      primitive: "circle",
+      radius: 0.5,
     });
-    body.setAttribute('material', {
-      side: 'double',
-      color: 'black'
-    })
+    body.setAttribute("material", {
+      side: "double",
+      color: "black",
+    });
     this.el.appendChild(body);
   }
 }

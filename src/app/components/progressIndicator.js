@@ -1,18 +1,40 @@
-AFRAME.registerComponent('progress-indicator', {
-  init: function () {
-    const indicator = document.createElement('a-entity');
-    indicator.setAttribute('position', '-0.5 0.3 -0.5')
+let indicator;
 
-    var geometry = new THREE.PlaneGeometry(0.05, 0.5);
-    geometry.rotateZ(1.57079633)
+AFRAME.registerComponent("progress-indicator", {
+  init: function () {
+    const scaleRange = [-12, 12];
+    const stepsNum = scaleRange.reduce((sum, num) => sum + Math.abs(num), 0);
+    //TODO rework
+    this.stepOffset = 0.18 / stepsNum;
+    const scale = document.createElement("a-entity");
+    scale.setAttribute("position", "0 0.35 -0.5");
+
+    indicator = document.createElement("a-plane");
+    indicator.setAttribute("position", {
+      x: 0,
+      y: 0.315,
+      z: -0.45,
+    });
+    indicator.setAttribute("geometry", {
+      width: 0.01,
+      height: 0.025,
+    });
+    indicator.setAttribute("material", {
+      roughness: 1,
+      color: "#000",
+    });
+
+    var geometry = new THREE.PlaneGeometry(0.015, 0.4);
+    console.log(geometry);
+    geometry.rotateZ(1.57079633);
     var material = new THREE.ShaderMaterial({
       uniforms: {
         color1: {
-          value: new THREE.Color("#ff0000")
+          value: new THREE.Color("#ff0000"),
         },
         color2: {
-          value: new THREE.Color("#35ff00")
-        }
+          value: new THREE.Color("#35ff00"),
+        },
       },
       vertexShader: `
     varying vec2 vUv;
@@ -34,7 +56,17 @@ AFRAME.registerComponent('progress-indicator', {
     }
   `,
     });
-    indicator.object3D.add(new THREE.Mesh(geometry, material));
-    this.el.appendChild(indicator)
-  }
-})
+    scale.object3D.add(new THREE.Mesh(geometry, material));
+    this.el.appendChild(indicator);
+    this.el.appendChild(scale);
+  },
+  doStep: function (step) {
+    const currentStep = parseFloat(indicator.object3D.position.x);
+    indicator.setAttribute("position", {
+      x: currentStep + step * this.stepOffset,
+      //TODO reuse
+      y: 0.315,
+      z: -0.45,
+    });
+  },
+});

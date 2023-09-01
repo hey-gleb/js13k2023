@@ -1,10 +1,12 @@
 /* Systems */
 import { gameSystem } from "./systems/gameSystem";
-import { carrySystem } from "./systems/carrySystem";
+import { lootSystem } from "./systems/lootSystem";
 
 /* Components */
 import { warrior } from "./components/warrior";
 import { torchLight } from "./components/torchLight";
+import { carriable } from "./components/carriable";
+import { armorySpawnSpot } from "./components/armorySpawnSpot";
 import { gateSwitch } from "./components/gateSwitch";
 import { progressIndicator } from "./components/progressIndicator";
 import { armorySlot } from "./components/armorySlot";
